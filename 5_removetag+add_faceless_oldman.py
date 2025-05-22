@@ -4,7 +4,7 @@ from datetime import datetime
 # ========================== ĐOẠN CODE 1 ==========================
 # Đường dẫn các thư mục
 
-folder_to_process = r'D:\mmm\artist_truvuong\manga\[Lune] Youkoso! Sukebe Elf no Mori he (Character CGs)\rape'
+folder_to_process = r'D:\prompt_album\[PIXIV] Noi [810034] [AI Generated] [13]-1280x\New folder'
 
 
 
@@ -13,7 +13,7 @@ folder_to_process = r'D:\mmm\artist_truvuong\manga\[Lune] Youkoso! Sukebe Elf no
 
 
 
-folder_to_remove = r'E:\folderremovenumberand\wantremove'
+folder_to_remove = r'./wantremove'
 output_folder = os.path.join(folder_to_process, 'out_tags')
 
 # Tạo thư mục out_tags nếu chưa tồn tại

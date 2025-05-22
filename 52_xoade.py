@@ -1,7 +1,7 @@
 import os
 
 # Đường dẫn thư mục chứa file cần xử lý và danh sách các tag không mong muốn
-folder_to_process = r"D:\mmm\artist_truvuong\manga\[Lune] Youkoso! Sukebe Elf no Mori he (Character CGs)\rape"
+folder_to_process = r"D:\prompt_album\[PIXIV] Noi [810034] [AI Generated] [13]-1280x\New folder"
 
 
 
@@ -9,7 +9,7 @@ folder_to_process = r"D:\mmm\artist_truvuong\manga\[Lune] Youkoso! Sukebe Elf no
 
 
 #------------------------------------------------------------------------------------------
-unwanted_tags_folder = r"E:\folderremovenumberand\wantremove"
+unwanted_tags_folder = r"./wantremove"
 
 # Tạo danh sách các tag không mong muốn từ các file .txt trong folder 'unwanted_tags_folder'
 unwanted_tags = set()
