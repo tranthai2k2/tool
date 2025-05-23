@@ -4,7 +4,7 @@ from datetime import datetime
 # ========================== ĐOẠN CODE 1 ==========================
 # Đường dẫn các thư mục
 
-folder_to_process = r'D:\prompt_album\[PIXIV] Noi [810034] [AI Generated] [13]-1280x\New folder'
+folder_to_process = r"D:\prompt_album\[PIXIV] Noi [810034] [AI Generated] [13]-1280x\New folder (5)"
 
 
 
