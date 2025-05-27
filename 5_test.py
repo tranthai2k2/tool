@@ -2,7 +2,7 @@ import os
 import re
 
 # ========================== ĐOẠN CODE 1 ==========================
-folder_to_process = r"D:\prompt_album\Zelda Failed Infiltration\Omake"
+folder_to_process = r"D:\prompt_album\BBC\[AI Generated] (RAW Waifus) Yelan-1280x"
 folder_to_remove = r'./wantremove'
 output_folder = os.path.join(folder_to_process, 'out_tags')
 
@@ -55,83 +55,86 @@ with open(all_tag_path, 'w', encoding='utf-8') as f:
     f.write(', '.join(all_unique_tags))
 print(f"Đã lưu tất cả tag duy nhất vào: {all_tag_path}")
 
-import os
-import re
+# ========================== ĐOẠN CODE 4 ==========================
+input_file = output_file_path
+output_file = os.path.join(output_folder, "addfaceless.txt")
 
-# ====================== TAG SETUP ======================
-TAG_DARKSKIN = {"dark-skinned male", "interracial"}
-TAG_FAT = {"fat man"}  # ❗ Chỉ giữ lại "fat man"
-TAG_FACELESS = {"faceless male", "bald"}
+tag_faceless = {"faceless male", "bald"}
 
-POSE_FULL_BODY = {
-    "missionary", "doggystyle", "cowgirl position", "straddling", "lying",
-    "standing", "girl on top", "upright straddle", "reverse cowgirl position"
+whole_body_poses = {
+    "missionary", "doggystyle", "cowgirl position", "straddling",
+    "lying", "standing", "girl on top", "upright straddle", "reverse cowgirl position"
 }
-FACELESS_TRIGGERS = {
+faceless_signals = {
     "faceless", "pov hands", "pov", "grabbing", "hand on another's head",
     "head grab", "arm grab", "irrumatio", "pov crotch", "bound arms"
 }
-NSFW_KEYWORDS = {
+nsfw_keywords = {
     "cum", "sex", "vaginal", "anal", "nude", "pussy", "penetration", "breast",
     "nipples", "fingering", "fuck", "sperm", "intercourse", "cervix", "creampie",
     "ejaculation", "rape", "clit", "clitoris", "penis", "pussy juice", "orgasm"
 }
+male_clothing_keywords = {"shirt", "pants", "shorts", "uniform", "suit", "jacket", "tie", "clothes", "underwear"}
 
-# ====================== LOGIC KIỂM TRA ======================
+# ====== HÀM HỖ TRỢ ======
 def is_boy_related(tags: set) -> bool:
     return any(re.match(r"\d*boy[s]?", tag) for tag in tags)
 
-def has_only_limbs(tags: set) -> bool:
-    return "pov hands" in tags and not any(part in tags for part in ["belly", "stomach", "torso", "chest", "fat"])
-
-def should_add_fat(tags: set) -> bool:
-    return "fat man" in tags  # ✅ Chỉ cần điều này
+def is_girl_related(tags: set) -> bool:
+    return any(re.match(r"\d*girl[s]?", tag) for tag in tags)
 
 def should_add_faceless(tags: set) -> bool:
     return (
         "faceless" in tags or
-        (tags & FACELESS_TRIGGERS and not tags & POSE_FULL_BODY)
+        (tags & faceless_signals and not tags & whole_body_poses)
     )
 
 def has_head_or_face(tags: set) -> bool:
-    facial_indicators = [
+    return any(tag in tags for tag in [
         "face", "head", "smile", "open mouth", "closed eyes", "looking at viewer", "solo focus"
-    ]
-    return any(tag in tags for tag in facial_indicators)
+    ])
 
 def is_nsfw(tags: set) -> bool:
-    return any(any(keyword in tag for keyword in NSFW_KEYWORDS) for tag in tags)
+    return any(keyword in tag for tag in tags for keyword in nsfw_keywords)
 
-# ====================== CHẠY XỬ LÝ ======================
-def process_tags_file(input_path: str, output_path: str):
-    with open(input_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
+def has_male_clothing(tags: set) -> bool:
+    return any(keyword in tag for tag in tags for keyword in male_clothing_keywords)
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        for line in lines:
-            raw_tags = set(tag.strip() for tag in line.strip().split(",") if tag.strip())
-            final_tags = set(raw_tags)
+def clone_with_add(tags: set, extra: set, suffix: int):
+    return ", ".join(sorted(tags | extra)) + f"  # version_{suffix}"
 
-            if is_boy_related(raw_tags):
-                if not raw_tags & TAG_DARKSKIN:
-                    final_tags.add("((dark skin male))")
+# ====== XỬ LÝ CHÍNH ======
+with open(input_file, "r", encoding="utf-8") as f:
+    lines = [line.strip() for line in f if line.strip()]
 
-                if should_add_fat(raw_tags) and not has_only_limbs(raw_tags):
-                    final_tags.add("((fat))")
+with open(output_file, "w", encoding="utf-8") as f:
+    for line in lines:
+        raw_tags = set(tag.strip() for tag in line.split(",") if tag.strip())
+        final_tags = set(raw_tags)
+        version_id = 1
 
-                if should_add_faceless(raw_tags) and not has_head_or_face(raw_tags):
-                    for tag in TAG_FACELESS:
-                        final_tags.add(f"(({tag}))")
+        # Thêm tag da tối nếu có 1boy và chưa có tag màu da
+        if "1boy" in raw_tags and not any("skin" in tag for tag in raw_tags):
+            final_tags.add("((dark skin male))")
 
-            if is_nsfw(raw_tags) and "uncensored" not in raw_tags:
-                final_tags.add("((uncensored))")
+        # Gắn uncensored nếu là NSFW
+        if is_nsfw(raw_tags) and "uncensored" not in raw_tags:
+            final_tags.add("((uncensored))")
 
-            f.write(", ".join(sorted(final_tags)) + "\n")
+        # Gắn tag nude male + clothes female nếu có 1boy + 1girl, nội dung NSFW và không có tag đồ nam
+        if {"1boy", "1girl"} <= raw_tags and is_nsfw(raw_tags) and not has_male_clothing(raw_tags):
+            if "nude male" not in raw_tags:
+                final_tags.add("((nude male))")
+            if "clothed female" not in raw_tags:
+                final_tags.add("((clothed female))")
 
-    print(f"✅ Đã xử lý xong và lưu tại: {output_path}")
+        # Viết dòng gốc đã cải thiện
+        f.write(", ".join(sorted(final_tags)) + "\n")
 
-# ====================== ĐƯỜNG DẪN FILE ======================
-input_file = output_file_path
-output_file = os.path.join(output_folder, "addfaceless.txt")
-process_tags_file(input_file, output_file)
+        # Tạo bản _1 nếu nghi ngờ thiếu faceless
+        if is_boy_related(raw_tags) and should_add_faceless(raw_tags) and not has_head_or_face(raw_tags):
+            missing = {f"(({t}))" for t in tag_faceless if t not in raw_tags}
+            if missing:
+                f.write(clone_with_add(raw_tags, missing, version_id) + "\n")
 
+print(f"✅ Đã xử lý xong và sinh bản sao trực tiếp trong: {output_file}")

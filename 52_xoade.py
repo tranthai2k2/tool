@@ -1,7 +1,7 @@
 import os
 
 # Đường dẫn thư mục chứa file cần xử lý và danh sách các tag không mong muốn
-folder_to_process = r"D:\prompt_album\[PIXIV] Noi [810034] [AI Generated] [13]-1280x\New folder (5)"
+folder_to_process = r"D:\prompt_album\Zelda Failed Infiltration\Omake"
 
 
 
